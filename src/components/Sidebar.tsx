@@ -35,7 +35,7 @@ export function Sidebar() {
     { to: "/acquisition-data", label: "Acquisition", icon: TrendingUp },
     { to: "/closer", label: "Closers", icon: Handshake },
     { to: "/setter", label: "Setters", icon: Users },
-    { to: "/leads", label: "Leads", icon: Users },
+    // { to: "/leads", label: "Leads", icon: Users },
     ...(canSeeCoach ? [{ to: "/coach", label: "Coaches", icon: Briefcase }] : []),
     { to: "/invite", label: "Admin", icon: Shield },
   ];
@@ -53,8 +53,7 @@ export function Sidebar() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-[60px] items-center border-b px-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full" />
-            <h1 className="text-sm font-bold text-white">Wholesale Launchpad</h1>
+            <img src="sales.io.png" alt="Wholesale Launchpad" />
           </div>
         </div>
         <div className="flex-1 overflow-auto py-2">
@@ -165,4 +164,4 @@ export function DateRangePickerButton() {
       )}
     </div>
   );
-} 
+}

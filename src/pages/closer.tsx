@@ -4,7 +4,8 @@ import { CallsTable } from '../components/tables/CallsTable';
 import { DateRangePicker } from '../components/filters/DateRangePicker';
 import { PlatformSelect } from '../components/filters/PlatformSelect';
 import { CloserSelect } from '../components/filters/CloserSelect';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LineChart, Line, Legend } from 'recharts';
+import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, LineChart, Line, Tooltip } from 'recharts';
+import DonutChart from '../components/charts/DonutChart';
 import {
   fetchData,
   calculateKpis,
@@ -21,7 +22,7 @@ import type { DealStatusDatum } from '../components/charts/DealStatusBreakdownCh
 import type { CloserRecord } from '../data/googleSheetService';
 
 // Colors for pie slices
-const PIE_COLORS = ['#FF0000', '#FF6666', '#FFA500', '#FFD700', '#00C49F', '#0088FE', '#FFBB28'];
+const PIE_COLORS = ["#1E3FAE", "#AE1D1D", "#AE8D1D", "#66AE1D", "#AE1D66", "#651DAE"];
 
 const CloserPage: React.FC = () => {
   const [rawData, setRawData] = useState<GoogleSheetData | null>(null);
@@ -98,7 +99,7 @@ const CloserPage: React.FC = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-center text-foreground mb-4">CLOSER DATA</h1>
 
-      <div className="flex justify-center flex-wrap gap-4 mb-4">
+      <div className="flex justify-start flex-wrap gap-4 mb-4">
         <div className="w-64"><DateRangePicker from={dateRange.from as Date} to={dateRange.to as Date} onChange={setDateRange} /></div>
         <div className="w-48"><PlatformSelect platform={platform} onChange={setPlatform} options={platformOptions} /></div>
         <div className="w-48"><CloserSelect value={closer} onChange={setCloser} options={closerOptions} /></div>
@@ -116,30 +117,12 @@ const CloserPage: React.FC = () => {
       <StatCard label="AVG. CASH / CALL" value={`$${kpis.avgCashPerCall.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
 
       <div className="bg-neutral-900 rounded-lg shadow-sm p-6 flex flex-col">
-        <div className="text-muted-foreground text-sm uppercase tracking-wider text-center">DEAL STATUS BREAKDOWN</div>
-        <ResponsiveContainer width="100%" height={500}>
-          {isLoading ? (
-            <div className="text-white flex items-center justify-center h-full">Loading...</div>
-          ) : (
-            <PieChart>
-              <Pie
-                data={dealStatusData}
-                dataKey="count"
-                nameKey="status"
-                cx="50%"
-                cy="50%"
-                outerRadius={200}
-                labelLine={false}
-              >
-                {dealStatusData.map((entry, i) => (
-                  <Cell key={`cell-${i}`} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ background: '#FFF', border: '1px solid #232533', color: '#000', fontSize: 14 }} />
-              <Legend iconType="circle" formatter={(value) => <span style={{ color: '#F3F4F6', fontSize: 14 }}>{value}</span>} />
-            </PieChart>
-          )}
-        </ResponsiveContainer>
+        <p className="text-muted-foreground text-sm uppercase tracking-wider text-center mb-3">DEAL STATUS BREAKDOWN</p>
+        {isLoading ? (
+          <div className="text-white flex items-center justify-center h-[500px]">Loading...</div>
+        ) : (
+          <DonutChart data={dealStatusData.map(d => ({ name: d.status, value: d.count }))} colors={PIE_COLORS} />
+        )}
       </div>
 
       <div className="bg-neutral-900 rounded-lg shadow-sm p-6 flex flex-col">

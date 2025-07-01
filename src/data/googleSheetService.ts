@@ -33,6 +33,8 @@ export interface KpiData {
     closeRate: number;
     closerCommission: number;
     avgCashPerCall: number;
+    callsCancelledNoConfirmation: number;
+    callsTakenNotClosedNoConfirmation: number;
 }
 
 export interface RevenueByCloserData {
@@ -268,7 +270,19 @@ export const calculateKpis = (
     coach?: string,
     closer?: string
 ): KpiData => {
-  const initialKpis: KpiData = { cashCollected: 0, revenueGenerated: 0, callsDue: 0, callsTaken: 0, callsClosed: 0, showRate: 0, closeRate: 0, closerCommission: 0, avgCashPerCall: 0 };
+  const initialKpis: KpiData = {
+    cashCollected: 0,
+    revenueGenerated: 0,
+    callsDue: 0,
+    callsTaken: 0,
+    callsClosed: 0,
+    showRate: 0,
+    closeRate: 0,
+    closerCommission: 0,
+    avgCashPerCall: 0,
+    callsCancelledNoConfirmation: 0,
+    callsTakenNotClosedNoConfirmation: 0,
+  };
   
   const filteredData = getFilteredData(data, dateRange, platform, coach, closer);
 
@@ -292,6 +306,10 @@ export const calculateKpis = (
 
   const callsClosed = filteredData.filter(r => r["Call Outcome"] === "Closed").length;
 
+  const callsCancelledNoConf = filteredData.filter(r => r["Call Outcome"] === "Cancelled by sales team (no confirmation)").length;
+
+  const callsTakenNotClosedNoConf = filteredData.filter(r => r["Call Outcome"] === "Taken - Not Closed").length;
+
   const showRate = callsDue > 0 ? (callsTaken / callsDue) * 100 : 0;
   const closeRate = callsTaken > 0 ? (callsClosed / callsTaken) * 100 : 0;
   const closerCommission = cashCollected * 0.1;
@@ -306,7 +324,9 @@ export const calculateKpis = (
     showRate,
     closeRate,
     closerCommission,
-    avgCashPerCall
+    avgCashPerCall,
+    callsCancelledNoConfirmation: callsCancelledNoConf,
+    callsTakenNotClosedNoConfirmation: callsTakenNotClosedNoConf,
   };
 };
 
@@ -425,7 +445,7 @@ export const calculateCloseRateTrend = (
 
     const result: CloseRateTrendData[] = [];
     byDate.forEach((stats, dateKey) => {
-        const closeRate = stats.taken > 0 ? (stats.closed / stats.taken) * 100 : 0;
+        const closeRate = stats.taken > 0 ? Number(((stats.closed / stats.taken) * 100).toFixed(2)) : 0;
         const [monthStr, dayStr, yearStr] = dateKey.split('/');
         const displayDate = new Date(parseInt(yearStr), parseInt(monthStr) - 1, parseInt(dayStr)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         result.push({ date: displayDate, closeRate });
@@ -664,7 +684,7 @@ export const calculateShowRateTrend = (
 
     const result: ShowRateTrendData[] = [];
     byDate.forEach((stats, dateKey) => {
-        const showRate = stats.due > 0 ? (stats.taken / stats.due) * 100 : 0;
+        const showRate = stats.due > 0 ? Number(((stats.taken / stats.due) * 100).toFixed(2)) : 0;
         result.push({ date: new Date(dateKey.replace(/-/g, '/')).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), showRate });
     });
 
@@ -688,7 +708,10 @@ export const calculateCoachCommissionBreakdown = (
         const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
         const rate = coachCommissionRateMap[coachName] ?? 0.325;
         const commission = cash * rate;
-        commissionMap.set(coachName, (commissionMap.get(coachName) || 0) + commission);
+
+        if (commission > 0) {
+            commissionMap.set(coachName, (commissionMap.get(coachName) || 0) + commission);
+        }
     });
 
     return Array.from(commissionMap.entries()).map(([source, value]) => ({ source, value }));
@@ -834,4 +857,41 @@ export const calculateApplicantSourceBreakdown = (
     count,
     value: total > 0 ? (count / total) * 100 : 0,
   })).sort((a, b) => b.count - a.count);
+};
+
+export interface InvestmentWillingData {
+  name: string; // the distinct "Willing to Invest" value
+  count: number; // total occurrences
+}
+
+export const calculateInvestmentWillingnessBreakdown = (
+  data: LeadsData,
+  dateRange?: { from?: Date; to?: Date },
+): InvestmentWillingData[] => {
+  if (!Array.isArray(data) || data.length === 0) return [];
+
+  // Align date filtering with other helpers
+  const adjustedDateRange = dateRange && dateRange.from && dateRange.to ? {
+    from: new Date(new Date(dateRange.from).setHours(0, 0, 0, 0)),
+    to: new Date(new Date(dateRange.to).setHours(23, 59, 59, 999)),
+  } : null;
+
+  const map = new Map<string, number>();
+
+  data.forEach(rec => {
+    const ts = rec.Timestamp;
+    if (!ts) return;
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return;
+    if (adjustedDateRange) {
+      if (d < adjustedDateRange.from || d > adjustedDateRange.to) return;
+    }
+
+    const val = rec["Willing to Invest"] || 'Unknown';
+    map.set(val, (map.get(val) || 0) + 1);
+  });
+
+  return Array.from(map.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 };

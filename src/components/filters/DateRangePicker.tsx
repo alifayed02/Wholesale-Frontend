@@ -27,9 +27,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ from, to, onCh
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="w-full justify-start text-left font-normal bg-neutral-800 hover:bg-neutral-700 border-neutral-700"
+          className="w-full flex justify-start text-left font-normal bg-neutral-800 hover:bg-neutral-700 border-neutral-700"
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
+          <CalendarIcon className="mr-2 mt-1 h-4 w-4" />
           {range?.from ? (
             range.to ? (
               <>

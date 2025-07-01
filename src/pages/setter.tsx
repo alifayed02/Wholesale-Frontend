@@ -82,7 +82,7 @@ const SetterPage: React.FC = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-center text-foreground mb-4">SETTER DATA</h1>
 
-      <div className="flex justify-center flex-wrap gap-4 mb-4">
+      <div className="flex justify-start flex-wrap gap-4 mb-4">
         <div className="w-64"><DateRangePicker from={dateRange.from as Date} to={dateRange.to as Date} onChange={setDateRange} /></div>
         <div className="w-48"><PlatformSelect platform={platform} onChange={setPlatform} options={platformOptions} /></div>
         <div className="w-48"><SetterSelect value={setter} onChange={setSetter} options={setterOptions} /></div>

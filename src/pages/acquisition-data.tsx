@@ -16,7 +16,7 @@ import {
 } from '../data/googleSheetService';
 import { useAuth } from '../auth/useAuth';
 
-const donutColors = ['#FF0000', '#FF6666', '#FFA500', '#FFD700', '#00C49F', '#0088FE', '#FFBB28'];
+const donutColors = ["#1E3FAE", "#AE1D1D", "#AE8D1D", "#66AE1D", "#AE1D66", "#651DAE"];
 
 const AcquisitionDataPage: React.FC = () => {
   const [rawData, setRawData] = useState<GoogleSheetData | null>(null);
@@ -95,7 +95,7 @@ const AcquisitionDataPage: React.FC = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-center text-foreground mb-4">ACQUISITION DATA</h1>
       
-      <div className="flex justify-center flex-wrap gap-4 mb-4">
+      <div className="flex justify-start flex-wrap gap-4 mb-4">
         <div className="w-64"><DateRangePicker from={dateRange.from as Date} to={dateRange.to as Date} onChange={setDateRange} /></div>
         <div className="w-48"><PlatformSelect platform={platform} onChange={setPlatform} options={platformOptions} /></div>
         <div className="w-48"><CoachSelect value={coach} onChange={setCoach} options={coachOptions} /></div>
@@ -109,11 +109,15 @@ const AcquisitionDataPage: React.FC = () => {
           <DonutChart data={funnelData} colors={donutColors} />
         </div>
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-4 gap-6">
             <StatCard label="Cash Collected" value={`$${kpis.cashCollected.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
             <StatCard label="Revenue Generated" value={`$${kpis.revenueGenerated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
             <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
             <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <StatCard label="Calls Cancelled (No Confirmation)" value={kpis.callsCancelledNoConfirmation.toString()} />
+            <StatCard label="Calls Taken Not Closed (No Confirmation)" value={kpis.callsTakenNotClosedNoConfirmation.toString()} />
           </div>
            <div className="grid grid-cols-3 gap-6">
                 <StatCard label="Calls Due" value={kpis.callsDue.toString()} />

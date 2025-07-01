@@ -39,7 +39,7 @@ export function App() {
             <Route path="/acquisition-data" element={<AcquisitionDataPage />} />
             <Route path="/closer" element={<CloserPage />} />
             <Route path="/setter" element={<SetterPage />} />
-            <Route path="/leads" element={<LeadsPage />} />
+            {/* <Route path="/leads" element={<LeadsPage />} /> */}
             <Route path="/coach" element={<CoachPage />} />
             <Route path="/invite" element={<InvitePage />} />
             <Route path="/" element={<Navigate to="/acquisition" />} />

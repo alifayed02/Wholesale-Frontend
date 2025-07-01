@@ -95,9 +95,9 @@ const CoachPage: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-foreground mb-8">Coach Dashboard</h1>
+      <h1 className="text-3xl text-center font-bold text-foreground mb-8">Coach Dashboard</h1>
       
-      <div className="flex justify-center flex-wrap gap-4 mb-4">
+      <div className="flex justify-start flex-wrap gap-4 mb-4">
         <div className="w-64"><DateRangePicker from={dateRange.from as Date} to={dateRange.to as Date} onChange={setDateRange} /></div>
         <div className="w-48"><PlatformSelect platform={platform} onChange={setPlatform} options={platformOptions} /></div>
         <div className="w-48"><CoachSelect value={coach} onChange={setCoach} options={coachOptions} /></div>
@@ -121,7 +121,7 @@ const CoachPage: React.FC = () => {
               <XAxis dataKey="date" stroke="#BDBDBD" tick={{ fill: '#F3F4F6', fontSize: 14 }} axisLine={{ stroke: '#232533' }} />
               <YAxis stroke="#BDBDBD" tick={{ fill: '#F3F4F6', fontSize: 14 }} axisLine={{ stroke: '#232533' }} domain={[0, 100]} />
               <Tooltip contentStyle={{ background: '#fff', border: '1px solid #232533', color: '#000', fontSize: 14 }} />
-              <Line type="monotone" dataKey="closeRate" stroke="#dc2626" strokeWidth={3} dot={{ r: 4, fill: '#991b1c' }} />
+              <Line type="monotone" dataKey="closeRate" stroke="#1e3fae" strokeWidth={3} dot={{ r: 4, fill: '#162e80' }} />
             </LineChart>
           )}
         </ResponsiveContainer>

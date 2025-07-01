@@ -25,7 +25,7 @@ export const Select: React.FC<SelectProps> = ({ value, onChange, options, placeh
               <SelectPrimitive.Item
                 key={option}
                 value={option}
-                className="p-2 rounded-md flex items-center justify-between cursor-pointer hover:bg-red-600"
+                className="p-2 rounded-md flex items-center justify-between cursor-pointer hover:bg-blue-600"
               >
                 <SelectPrimitive.ItemText>{option}</SelectPrimitive.ItemText>
                 <SelectPrimitive.ItemIndicator>
