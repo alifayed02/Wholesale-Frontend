@@ -40,7 +40,7 @@ export const Invite: React.FC = () => {
               Email Address
             </label>
             <input
-              className="w-full p-3 bg-[#1E1E24] rounded-lg text-white border border-[#3A3A45] focus:border-red-800 focus:outline-none"
+              className="w-full p-3 bg-[#1E1E24] rounded-lg text-white border border-[#3A3A45] focus:border-blue-800 focus:outline-none"
               type="email"
               id="email"
               value={email}
@@ -48,12 +48,12 @@ export const Invite: React.FC = () => {
               required
             />
           </div>
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {error && <p className="text-blue-500 text-sm text-center">{error}</p>}
           {success && <p className="text-green-500 text-sm text-center">{success}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 mt-6 bg-red-800 rounded-lg text-white font-bold hover:bg-red-800/90 transition-colors disabled:opacity-50"
+            className="w-full py-3 mt-6 bg-blue-800 rounded-lg text-white font-bold hover:bg-blue-800/90 transition-colors disabled:opacity-50"
           >
             {loading ? 'Sending Invite...' : 'Send Invite'}
           </button>

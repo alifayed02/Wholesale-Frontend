@@ -50,10 +50,10 @@ const AcquisitionPage: React.FC = () => {
         setGoogleSheetData(data);
         
         if (data && data[0]) {
-          const platforms = [...new Set(data[0].map(c => c["What platform did the lead come from?"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
+          const platforms = [...new Set(data[0].map(c => c["Platform"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
           setPlatformOptions(["Select Platform", ...platforms]);
 
-          const coaches = [...new Set(data[0].map(c => c["Who did lead come from?"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
+          const coaches = [...new Set(data[0].map(c => c["Coach Name"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
           setCoachOptions(["Select Coach", ...coaches]);
 
           const closers = [...new Set(data[0].map(c => c["Closer Name"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];

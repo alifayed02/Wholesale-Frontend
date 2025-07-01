@@ -47,15 +47,15 @@ const AcquisitionDataPage: React.FC = () => {
         setRawData(data);
 
         if (data && data[0]) {
-            const platforms = [...new Set(data[0].map(c => c["What platform did the lead come from?"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
+            const platforms = [...new Set(data[0].map(c => c["Platform"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
             setPlatformOptions(["Select Platform", ...platforms]);
 
             const closers = [...new Set(data[0].map(item => item["Closer Name"]).filter(Boolean))] as string[];
-            const coaches = [...new Set(data[0].map(item => item["Who did lead come from?"]).filter(Boolean))] as string[];
+            const coaches = [...new Set(data[0].map(item => item["Coach Name"]).filter(Boolean))] as string[];
             setCloserOptions(["Select Closer", ...closers]);
             setCoachOptions(["Select Coach", ...coaches]);
 
-            const funnels = [...new Set(data[0].map(c => c["What funnel?"] || 'Unknown').filter(f => f !== 'Unknown' && f.trim() !== ''))];
+            const funnels = [...new Set(data[0].map(c => c["Funnel"] || 'Unknown').filter(f => f !== 'Unknown' && f.trim() !== ''))];
             setFunnelOptions(["Select Funnel", ...funnels]);
         }
       } catch (error) {

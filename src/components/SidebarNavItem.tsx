@@ -17,8 +17,8 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ to, icon: Icon, 
     <Link
       to={to}
       className={cn(
-        'flex items-center gap-3 rounded-lg mt-2 mb-2 px-3 py-2 text-neutral-400 transition-all hover:text-white hover:bg-red-800',
-        isActive && 'bg-red-800 text-white'
+        'flex items-center gap-3 rounded-lg mt-2 mb-2 px-3 py-2 text-neutral-400 transition-all hover:text-white hover:bg-blue-800',
+        isActive && 'bg-blue-800 text-white'
       )}
     >
       <Icon className="h-5 w-5" />

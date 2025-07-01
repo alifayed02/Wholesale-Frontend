@@ -2,19 +2,23 @@ import { coachCommissionRateMap } from '../constants/emailCoachMap';
 
 export interface CloserRecord {
     "Timestamp": string;
-    "Date Call Was Taken": string;
     "Prospect Name": string;
     "Offer Made": string;
     "Call Outcome": string;
     "Cash Collected": string;
-    "Revenue Generated\nThe total value of the contract (ex: 3000, 4000)\nYour answer": string;
-    "Call Notes \n(Please include where you processed the payment)": string;
+    "Revenue Generated": string;
     "Closer Name": string;
     "Setter Name": string;
-    "Who did lead come from?": string;
-    "What platform did the lead come from?": string;
-    "What funnel?": string;
+    "Coach Name": string;
+    "Platform": string;
+    "Funnel": string;
     "Fathom Link": string;
+    "Date Call Was Taken"?: string;
+    "Call Notes \n(Please include where you processed the payment)"?: string;
+    "Who did lead come from?"?: string;
+    "What platform did the lead come from?"?: string;
+    "What funnel?"?: string;
+    "Revenue Generated\nThe total value of the contract (ex: 3000, 4000)\nYour answer"?: string;
 }
 
 export type GoogleSheetData = [CloserRecord[]];
@@ -118,7 +122,7 @@ export interface CoachKpiData {
 const API_BASE =
   import.meta.env.VITE_ENVIRONMENT === 'production'
     ? import.meta.env.VITE_BACKEND_URL
-    : 'http://localhost:5000';
+    : 'http://localhost:5005';
 
 export const fetchData = async (token: string): Promise<GoogleSheetData> => {
   const response = await fetch(`${API_BASE}/data/eoc`, {
@@ -168,11 +172,11 @@ export const getFilteredData = (
             }
         }
 
-        if (platform && !isPlaceholder(platform) && platform !== 'All' && record["What platform did the lead come from?"] !== platform) {
+        if (platform && !isPlaceholder(platform) && platform !== 'All' && record["Platform"] !== platform) {
             return false;
         }
 
-        if (coach && !isPlaceholder(coach) && coach !== 'All' && record["Who did lead come from?"] !== coach) {
+        if (coach && !isPlaceholder(coach) && coach !== 'All' && record["Coach Name"] !== coach) {
             return false;
         }
 
@@ -201,7 +205,7 @@ export const calculateFunnelBreakdown = (
         return [];
     }
 
-    const validFunnelData = filteredData.filter(r => r["What funnel?"]); // exclude null/undefined funnels
+    const validFunnelData = filteredData.filter(r => r["Funnel"]); // exclude null/undefined funnels
 
     if (validFunnelData.length === 0) {
         return [];
@@ -211,7 +215,7 @@ export const calculateFunnelBreakdown = (
     const funnelCash = new Map<string, number>();
 
     validFunnelData.forEach(record => {
-        const funnel = record["What funnel?"] as string;
+        const funnel = record["Funnel"] as string;
         funnelCount.set(funnel, (funnelCount.get(funnel) || 0) + 1);
 
         const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
@@ -240,7 +244,7 @@ export const calculateLeadSourceBreakdown = (
         return [];
     }
 
-    const validSourceData = filteredData.filter(r => r["What platform did the lead come from?"]); // exclude null/undefined sources
+    const validSourceData = filteredData.filter(r => r["Platform"]); // exclude null/undefined sources
 
     if (validSourceData.length === 0) {
         return [];
@@ -248,14 +252,14 @@ export const calculateLeadSourceBreakdown = (
 
     const sourceMap = new Map<string, number>();
     validSourceData.forEach(record => {
-        const src = record["What platform did the lead come from?"] || "Unknown";
+        const src = record["Platform"] || "Unknown";
         sourceMap.set(src, (sourceMap.get(src) || 0) + 1);
     });
 
     return Array.from(sourceMap.entries()).map(([source, value]) => ({ source, value }));
 };
 
-const revenueKey = "Revenue Generated\nThe total value of the contract (ex: 3000, 4000)";
+const revenueKey = "Revenue Generated";
 
 export const calculateKpis = (
     data: GoogleSheetData,
@@ -333,7 +337,7 @@ export const calculateCoachKpis = (
     let coachCommission = 0;
     const totalCashCollected = filteredData.reduce((sum, record) => {
         const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
-        const coachName = record["Who did lead come from?"] || 'Unknown';
+        const coachName = record["Coach Name"] || 'Unknown';
         const rate = coachCommissionRateMap[coachName] ?? 0.325;
         coachCommission += cash * rate;
         return sum + cash;
@@ -467,8 +471,8 @@ export const calculateCallsTable = (
             prospect: record["Prospect Name"] || "N/A",
             outcome: record["Call Outcome"] || "N/A",
             cashCollected: `$${(parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-            coach: record["Who did lead come from?"] || "N/A",
-            platform: record["What platform did the lead come from?"] || "N/A",
+            coach: record["Coach Name"] || "N/A",
+            platform: record["Platform"] || "N/A",
         }));
 };
 
@@ -680,7 +684,7 @@ export const calculateCoachCommissionBreakdown = (
     const commissionMap = new Map<string, number>();
 
     filtered.forEach(record => {
-        const coachName = record["Who did lead come from?"] || 'Unknown';
+        const coachName = record["Coach Name"] || 'Unknown';
         const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
         const rate = coachCommissionRateMap[coachName] ?? 0.325;
         const commission = cash * rate;
@@ -780,7 +784,7 @@ export const calculateIncomeReplaceBreakdown = (
     if (adjustedDateRange) {
       if (d < adjustedDateRange.from || d > adjustedDateRange.to) return;
     }
-    const income = rec["Income Replace"] || 'Unknown';
+    const income = rec["Desired Income"] || 'Unknown';
     map.set(income, (map.get(income) || 0) + 1);
   });
 

@@ -36,10 +36,10 @@ const CoachPage: React.FC = () => {
         const fetchedData = await fetchData(token);
         setData(fetchedData);
         if (fetchedData && fetchedData[0]) {
-          const platforms = [...new Set(fetchedData[0].map(c => c["What platform did the lead come from?"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
+          const platforms = [...new Set(fetchedData[0].map(c => c["Platform"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
           setPlatformOptions(["Select Platform", ...platforms]);
 
-          const allCoaches = [...new Set(fetchedData[0].map(c => c["Who did lead come from?"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
+          const allCoaches = [...new Set(fetchedData[0].map(c => c["Coach Name"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
           if (isAdmin) {
             setCoachOptions(["Select Coach", ...allCoaches]);
           } else {

@@ -53,8 +53,8 @@ export function Sidebar() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-[60px] items-center border-b px-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-600 rounded-full" />
-            <h1 className="text-xl font-bold text-white">Urban Unity</h1>
+            <div className="w-8 h-8 bg-blue-600 rounded-full" />
+            <h1 className="text-sm font-bold text-white">Wholesale Launchpad</h1>
           </div>
         </div>
         <div className="flex-1 overflow-auto py-2">
@@ -68,7 +68,7 @@ export function Sidebar() {
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 rounded-lg mt-2 mb-2 px-3 py-2 text-neutral-400 transition-all hover:text-white hover:bg-red-800">
+              className="flex items-center gap-3 rounded-lg mt-2 mb-2 px-3 py-2 text-neutral-400 transition-all hover:text-white hover:bg-blue-800">
               <LogOut className="h-5 w-5" />
               Logout
             </button>

@@ -50,7 +50,7 @@ const CloserPage: React.FC = () => {
         setRawData(data);
 
         if (data && data[0]) {
-          const platforms = [...new Set(data[0].map(c => c["What platform did the lead come from?"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
+          const platforms = [...new Set(data[0].map(c => c["Platform"] || 'Unknown').filter(c => c !== 'Unknown' && c.trim() !== ''))];
           setPlatformOptions(["Select Platform", ...platforms]);
 
           const closers = [...new Set(data[0].map(item => item["Closer Name"]).filter(Boolean))] as string[];
@@ -108,7 +108,7 @@ const CloserPage: React.FC = () => {
         <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
         <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
         <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
-        <div className="bg-red-600 p-6 rounded-2xl text-center transition-all hover:bg-red-700">
+        <div className="bg-blue-600 p-6 rounded-2xl text-center transition-all hover:bg-blue-700">
           <p className="text-white/80 text-sm uppercase tracking-wider">Closer Commission</p>
           <p className="text-white text-2xl font-bold mt-2">${kpis.closerCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
@@ -151,7 +151,7 @@ const CloserPage: React.FC = () => {
               <XAxis dataKey="date" stroke="#BDBDBD" tick={{ fill: '#F3F4F6', fontSize: 14 }} axisLine={{ stroke: '#232533' }} />
               <YAxis stroke="#BDBDBD" tick={{ fill: '#F3F4F6', fontSize: 14 }} axisLine={{ stroke: '#232533' }} domain={[0, 100]} />
               <Tooltip contentStyle={{ background: '#fff', border: '1px solid #232533', color: '#000', fontSize: 14 }} />
-              <Line type="monotone" dataKey="closeRate" stroke="#dc2626" strokeWidth={3} dot={{ r: 4, fill: '#991b1c' }} />
+              <Line type="monotone" dataKey="closeRate" stroke="#1e3fae" strokeWidth={3} dot={{ r: 4, fill: '#162e80' }} />
             </LineChart>
           )}
         </ResponsiveContainer>

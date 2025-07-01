@@ -1,4 +1,4 @@
-# Urban Unity Frontend
+# Wholesale Launchpad Frontend
 
 A modern, modular SaaS sales dashboard inspired by 21st.dev, Linear, and Framer. Built with React, TypeScript, and Tailwind CSS, this project features a pixel-perfect, bento-style layout, a robust design system, and is ready for real-time data integration from Google Sheets.
 
@@ -78,4 +78,4 @@ A modern, modular SaaS sales dashboard inspired by 21st.dev, Linear, and Framer.
 
 ## 🙏 Credits
 - Inspired by [21st.dev](https://21st.dev), [Linear](https://linear.app), and [Framer](https://framer.com)
-- Built with love by the Urban Unity team
+- Built with love by 9M

@@ -46,7 +46,7 @@ const ShowRateGauge: React.FC<ShowRateGaugeProps> = ({ value }) => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-extrabold text-white drop-shadow-[0_0_10px_#ff1a1a] animate-pulse font-sans">
         {percent}%
       </div>
-      <div className="absolute inset-0 pointer-events-none rounded-3xl ring-2 ring-red-600/40 animate-pulse" />
+      <div className="absolute inset-0 pointer-events-none rounded-3xl ring-2 ring-blue-600/40 animate-pulse" />
     </div>
   );
 };

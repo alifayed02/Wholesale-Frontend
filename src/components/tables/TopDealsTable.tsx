@@ -18,7 +18,7 @@ const TopDealsTable: React.FC<TopDealsTableProps> = ({ data }) => {
           <tr>
             <th className="p-4 font-medium text-muted-foreground">Closer Name</th>
             <th className="p-4 font-medium text-muted-foreground">Prospect Name</th>
-            <th className="p-4 font-medium text-white bg-red-600 rounded-t-lg">Cash Collected</th>
+            <th className="p-4 font-medium text-white bg-blue-600 rounded-t-lg">Cash Collected</th>
           </tr>
         </thead>
         <tbody>

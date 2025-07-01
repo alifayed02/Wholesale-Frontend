@@ -25,7 +25,7 @@ const LeadsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [platformOptions, setPlatformOptions] = useState<string[]>([]);
-  const [platform, setPlatform] = useState('Select Platform');
+  const [platform, setPlatform] = useState('Select Source');
 
   const { getAuthToken } = useAuth();
 
@@ -51,7 +51,7 @@ const LeadsPage: React.FC = () => {
   useEffect(() => {
     if (rawData) {
       const platforms = [...new Set(rawData.map(rec => (rec as any)["Source"] || 'Unknown').filter(p => p !== 'Unknown' && String(p).trim() !== ''))];
-      setPlatformOptions(["Select Platform", ...platforms]);
+      setPlatformOptions(["Select Source", ...platforms]);
     }
   }, [rawData]);
 
@@ -60,7 +60,7 @@ const LeadsPage: React.FC = () => {
     if (rawData) {
       // Apply platform filter first
       let platformFiltered = rawData;
-      if (platform && platform !== 'Select Platform') {
+      if (platform && platform !== 'Select Source') {
         platformFiltered = rawData.filter(rec => (rec as any)["Source"] === platform);
       }
 
@@ -112,7 +112,7 @@ const LeadsPage: React.FC = () => {
                 contentStyle={{ background: '#fff', border: '1px solid #232533', color: '#000', fontSize: 14 }}
                 formatter={(value) => [`${value}`, 'Applicants']}
               />
-              <Line type="monotone" dataKey="applicants" stroke="#dc2626" strokeWidth={3} dot={{ r: 4, fill: '#991b1c' }} />
+              <Line type="monotone" dataKey="applicants" stroke="#1e3fae" strokeWidth={3} dot={{ r: 4, fill: '#162e80' }} />
             </LineChart>
           )}
         </ResponsiveContainer>
