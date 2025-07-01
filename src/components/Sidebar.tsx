@@ -35,8 +35,8 @@ export function Sidebar() {
     { to: "/acquisition-data", label: "Acquisition", icon: TrendingUp },
     { to: "/closer", label: "Closers", icon: Handshake },
     { to: "/setter", label: "Setters", icon: Users },
-    // { to: "/leads", label: "Leads", icon: Users },
-    ...(canSeeCoach ? [{ to: "/coach", label: "Coaches", icon: Briefcase }] : []),
+    { to: "/leads", label: "Leads", icon: Users },
+    // ...(canSeeCoach ? [{ to: "/coach", label: "Coaches", icon: Briefcase }] : []),
     { to: "/invite", label: "Admin", icon: Shield },
   ];
 
