@@ -388,32 +388,29 @@ export const calculateCashCollectedChart = (
     const filteredData = getFilteredData(data, dateRange, platform, coach, closer);
 
     const cashByDate = new Map<string, number>();
-    filteredData.forEach(record => {
-        const dateStr = record["Timestamp"];
-        if (dateStr) {
-            try {
-                const date = new Date(dateStr);
-                if (isNaN(date.getTime())) return;
 
-                const dateKey = date.toISOString().split('T')[0];
-                const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
-                
-                cashByDate.set(dateKey, (cashByDate.get(dateKey) || 0) + cash);
-                // if (cash > 0) {
-                //     cashByDate.set(dateKey, (cashByDate.get(dateKey) || 0) + cash);
-                // }
-            } catch (e) {
-                // Ignore errors
-            }
-        }
+    filteredData.forEach(record => {
+        const ts = record["Timestamp"];
+        if (!ts) return;
+
+        // Extract the raw date portion (e.g. "6/26/2025") without any timezone conversions
+        const dateKey = ts.split(' ')[0];
+
+        const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
+        cashByDate.set(dateKey, (cashByDate.get(dateKey) || 0) + cash);
     });
+
+    const toDate = (mdy: string) => {
+        const [m, d, y] = mdy.split('/').map(Number);
+        return new Date(y, m - 1, d);
+    };
 
     return Array.from(cashByDate.entries())
         .map(([dateKey, cash]) => ({ dateKey, cash }))
-        .sort((a, b) => new Date(a.dateKey).getTime() - new Date(b.dateKey).getTime())
+        .sort((a, b) => toDate(a.dateKey).getTime() - toDate(b.dateKey).getTime())
         .map(item => ({
-            date: new Date(item.dateKey.replace(/-/g, '/')).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            cash: item.cash
+            date: toDate(item.dateKey).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            cash: item.cash,
         }));
 };
 
@@ -485,7 +482,7 @@ export const calculateCallsTable = (
             return dateB - dateA; // Sort descending
         })
         .map(record => ({
-            date: record["Timestamp"] ? new Date(record["Timestamp"]).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : "N/A",
+            date: record["Timestamp"] ? record["Timestamp"].split(' ')[0] : "N/A",
             closer: record["Closer Name"] || "N/A",
             setter: record["Setter Name"] || "N/A",
             prospect: record["Prospect Name"] || "N/A",

@@ -125,22 +125,32 @@ const LeadsPage: React.FC = () => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-1 gap-6">
         <div className="bg-neutral-900 rounded-2xl p-6">
-            <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">WILLING TO INVEST</p>
-            <ResponsiveContainer width="100%" height={350}>
+          <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">WILLING TO INVEST</p>
+          <ResponsiveContainer width="100%" height={350}>
               {investData.length === 0 ? (
                 <div className="text-white flex items-center justify-center h-full">No data</div>
-              ) : (
-                <BarChart data={investData}>
-                  <CartesianGrid stroke="#232533" vertical={false} />
-                  <XAxis dataKey="name" stroke="#BDBDBD" tick={{ fill: '#F3F4F6', fontSize: 14 }} axisLine={{ stroke: '#232533' }} />
-                  <YAxis stroke="#BDBDBD" tick={{ fill: '#F3F4F6', fontSize: 14 }} axisLine={{ stroke: '#232533' }} allowDecimals={false} />
-                  <Tooltip contentStyle={{ background: '#fff', border: '1px solid #232533', color: '#000', fontSize: 14 }} formatter={(value) => [`${value}`, 'Applicants']} />
-                  <Bar dataKey="count" fill="#1e3fae" barSize={30} />
-                </BarChart>
+            ) : (
+              <BarChart data={investData}>
+                <CartesianGrid stroke="#232533" vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  stroke="#BDBDBD"
+                  tick={{ fill: "#F3F4F6", fontSize: 14 }}
+                  axisLine={{ stroke: "#232533" }}
+                />
+                <YAxis
+                  stroke="#BDBDBD"
+                  tick={{ fill: "#F3F4F6", fontSize: 14 }}
+                  axisLine={{ stroke: "#232533" }}
+                  allowDecimals={false}
+                />
+                <Tooltip contentStyle={{ background: '#fff', border: '1px solid #232533', color: '#000', fontSize: 14 }} formatter={(value) => [`${value}`, 'Applicants']} />
+                <Bar dataKey="count" fill="#1e3fae" barSize={30} />
+              </BarChart>
               )}
-            </ResponsiveContainer>
-          </div>
+          </ResponsiveContainer>
         </div>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-1 gap-6">
         <div className="bg-neutral-900 rounded-2xl p-6">
           <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">APPLICANT SOURCE</p>
