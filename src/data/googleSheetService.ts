@@ -30,6 +30,7 @@ export interface KpiData {
     callsTaken: number;
     callsClosed: number;
     showRate: number;
+    trueShowRate: number;
     closeRate: number;
     closerCommission: number;
     avgCashPerCall: number;
@@ -145,6 +146,66 @@ export interface FunnelBreakdownData {
     cash: number;  // total cash collected
 }
 
+// Map verbose situation labels to concise display names
+export const SITUATION_DISPLAY_MAP: Record<string, string> = {
+    "B-C (A)                      This lead is 0%-25%": "B-C (A)",
+    "B-C (B)                      This lead is 25%-50%": "B-C (B)",
+    "B-B (A)                      This lead is 50%-75%": "B-B (A)",
+    "B-B (B)                      This lead is 75%%-90%": "B-B (B)",
+};
+
+export interface SituationBreakdownData {
+    name: string;   // the distinct "Situation" value
+    value: number;  // percentage representation of total
+    count: number;  // raw count of records in this situation
+}
+
+export const calculateSituationBreakdown = (
+    data: GoogleSheetData,
+    dateRange?: { from?: Date; to?: Date },
+    platform?: string,
+    coach?: string,
+    closer?: string,
+    situation?: string,
+): SituationBreakdownData[] => {
+    const filteredData = getFilteredData(data, dateRange, platform, coach, closer, undefined, situation);
+
+    if (filteredData.length === 0) {
+        return [];
+    }
+
+    // Attempt to read the field "Situation"; fallback to some common alternatives if necessary.
+    const extractSituation = (rec: CloserRecord): string | undefined => {
+        // @ts-ignore – runtime may include extra keys not in the interface
+        return (
+            (rec as any)["Situation"]
+        );
+    };
+
+    const validData = filteredData.filter(r => extractSituation(r));
+
+    if (validData.length === 0) {
+        return [];
+    }
+
+    const countMap = new Map<string, number>();
+    validData.forEach(record => {
+        let situation = extractSituation(record) as string;
+        situation = SITUATION_DISPLAY_MAP[situation] || situation;
+        countMap.set(situation, (countMap.get(situation) || 0) + 1);
+    });
+
+    const total = validData.length;
+
+    return Array.from(countMap.entries())
+        .map(([name, count]) => ({
+            name,
+            count,
+            value: total > 0 ? (count / total) * 100 : 0,
+        }))
+        .sort((a, b) => b.count - a.count);
+};
+
 export const getFilteredData = (
     data: GoogleSheetData,
     dateRange?: { from?: Date; to?: Date },
@@ -152,6 +213,7 @@ export const getFilteredData = (
     coach?: string,
     closer?: string,
     setter?: string,
+    situation?: string,
 ): CloserRecord[] => {
     if (!data || !Array.isArray(data) || !data[0]) {
         return [];
@@ -190,6 +252,14 @@ export const getFilteredData = (
             return false;
         }
 
+        if (situation && !isPlaceholder(situation) && situation !== 'All') {
+            const rawSituation = (record as any)["Situation"] as string | undefined;
+            const displaySituation = SITUATION_DISPLAY_MAP[rawSituation ?? ""] ?? rawSituation ?? "";
+            if (displaySituation !== situation) {
+                return false;
+            }
+        }
+
         return true;
     });
 };
@@ -199,9 +269,10 @@ export const calculateFunnelBreakdown = (
     dateRange?: { from?: Date; to?: Date },
     platform?: string,
     coach?: string,
-    closer?: string
+    closer?: string,
+    situation?: string,
 ): FunnelBreakdownData[] => {
-    const filteredData = getFilteredData(data, dateRange, platform, coach, closer);
+    const filteredData = getFilteredData(data, dateRange, platform, coach, closer, undefined, situation);
     
     if (filteredData.length === 0) {
         return [];
@@ -268,7 +339,8 @@ export const calculateKpis = (
     dateRange?: { from?: Date; to?: Date },
     platform?: string,
     coach?: string,
-    closer?: string
+    closer?: string,
+    situation?: string,
 ): KpiData => {
   const initialKpis: KpiData = {
     cashCollected: 0,
@@ -277,6 +349,7 @@ export const calculateKpis = (
     callsTaken: 0,
     callsClosed: 0,
     showRate: 0,
+    trueShowRate: 0,
     closeRate: 0,
     closerCommission: 0,
     avgCashPerCall: 0,
@@ -284,7 +357,7 @@ export const calculateKpis = (
     callsTakenNotClosedNoConfirmation: 0,
   };
   
-  const filteredData = getFilteredData(data, dateRange, platform, coach, closer);
+  const filteredData = getFilteredData(data, dateRange, platform, coach, closer, undefined, situation);
 
   const cashCollected = filteredData.reduce((sum, record) => {
     const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g,"")) || 0;
@@ -308,12 +381,18 @@ export const calculateKpis = (
 
   const callsCancelledNoConf = filteredData.filter(r => r["Call Outcome"] === "Cancelled by sales team (no confirmation)").length;
 
-  const callsTakenNotClosedNoConf = filteredData.filter(r => r["Call Outcome"] === "Taken - Not Closed").length;
+  const callsTakenNotClosedNoConf = filteredData.filter(r => r["Call Outcome"] === "Taken - Not Closed (no confirmation)").length;
 
   const showRate = callsDue > 0 ? (callsTaken / callsDue) * 100 : 0;
   const closeRate = callsTaken > 0 ? (callsClosed / callsTaken) * 100 : 0;
   const closerCommission = cashCollected * 0.1;
   const avgCashPerCall = callsClosed > 0 ? cashCollected / callsTaken : 0;
+
+  const trueCallsTaken = filteredData.filter(r => {
+    const outcome = r["Call Outcome"];
+    return outcome !== "Cancelled" && outcome !== "Rescheduled" && outcome !== "No Show" && outcome !== "MRR" && outcome !== "Deposit Collected" && outcome !== "Cancelled by sales team (no confirmation)";
+  }).length;
+  const trueShowRate = callsDue > 0 ? (trueCallsTaken / callsDue) * 100 : 0;
 
   return {
     cashCollected,
@@ -322,6 +401,7 @@ export const calculateKpis = (
     callsTaken,
     callsClosed,
     showRate,
+    trueShowRate,
     closeRate,
     closerCommission,
     avgCashPerCall,
@@ -891,4 +971,38 @@ export const calculateInvestmentWillingnessBreakdown = (
   return Array.from(map.entries())
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
+};
+
+// For Acquisition page: call outcome distribution (deal status)
+export interface DealStatusDatum {
+    name: string;   // outcome label for chart display
+    value: number;  // percentage share
+    count: number;  // raw count
+}
+
+export const calculateDealStatusBreakdown = (
+    data: GoogleSheetData,
+    dateRange?: { from?: Date; to?: Date },
+    platform?: string,
+    coach?: string,
+    closer?: string,
+    situation?: string,
+): DealStatusDatum[] => {
+    const filtered = getFilteredData(data, dateRange, platform, coach, closer, undefined, situation);
+
+    if (filtered.length === 0) return [];
+
+    const countMap = new Map<string, number>();
+    filtered.forEach(rec => {
+        const outcome = rec["Call Outcome"] || 'Unknown';
+        countMap.set(outcome, (countMap.get(outcome) || 0) + 1);
+    });
+
+    const total = Array.from(countMap.values()).reduce((s, v) => s + v, 0);
+
+    return Array.from(countMap.entries()).map(([name, count]) => ({
+        name,
+        count,
+        value: total > 0 ? (count / total) * 100 : 0,
+    })).sort((a, b) => b.count - a.count);
 };

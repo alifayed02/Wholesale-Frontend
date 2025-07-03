@@ -13,12 +13,12 @@ import {
   GoogleSheetData,
   calculateCallsTable,
   CallsTableData,
-  getFilteredData,
+  calculateDealStatusBreakdown,
+  DealStatusDatum,
   calculateCloseRateTrend,
   CloseRateTrendData
 } from '../data/googleSheetService';
 import { useAuth } from '../auth/useAuth';
-import type { DealStatusDatum } from '../components/charts/DealStatusBreakdownChart';
 import type { CloserRecord } from '../data/googleSheetService';
 
 // Colors for pie slices
@@ -73,13 +73,7 @@ const CloserPage: React.FC = () => {
       const callsTableData = calculateCallsTable(rawData, dateRange, platform, 'All', closer);
       setCallsData(callsTableData);
 
-      const filtered = getFilteredData(rawData, dateRange, platform, 'All', closer);
-      const statusMap = new Map<string, number>();
-      (filtered as CloserRecord[]).forEach((record) => {
-        const status = record["Call Outcome"] || 'Unknown';
-        statusMap.set(status, (statusMap.get(status) || 0) + 1);
-      });
-      const breakdown = Array.from(statusMap.entries()).map(([status, count]) => ({ status, count }));
+      const breakdown = calculateDealStatusBreakdown(rawData, dateRange, platform, 'All', closer);
       setDealStatusData(breakdown);
 
       const trend = calculateCloseRateTrend(rawData, dateRange, platform, 'All', closer);
@@ -121,7 +115,7 @@ const CloserPage: React.FC = () => {
         {isLoading ? (
           <div className="text-white flex items-center justify-center h-[500px]">Loading...</div>
         ) : (
-          <DonutChart data={dealStatusData.map(d => ({ name: d.status, value: d.count }))} colors={PIE_COLORS} />
+          <DonutChart data={dealStatusData} colors={PIE_COLORS} />
         )}
       </div>
 
