@@ -99,16 +99,30 @@ const CloserPage: React.FC = () => {
         <div className="w-48"><CloserSelect value={closer} onChange={setCloser} options={closerOptions} /></div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
-        <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
-        <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
+      <div className="grid grid-cols-2 gap-6">
+        <StatCard label="Cash Collected" value={`$${kpis.cashCollected.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
+        <StatCard label="Revenue Generated" value={`$${kpis.revenueGenerated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-blue-600 p-6 rounded-2xl text-center transition-all hover:bg-blue-700">
           <p className="text-white/80 text-sm uppercase tracking-wider">Closer Commission</p>
           <p className="text-white text-2xl font-bold mt-2">${kpis.closerCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
       </div>
-      <StatCard label="AVG. CASH / CALL" value={`$${kpis.avgCashPerCall.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+
+      <div className="grid grid-cols-5 xs:grid-cols-1 gap-6">
+        <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
+        <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
+        <StatCard label="Calls Due" value={kpis.callsDue.toString()} />
+        <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
+        <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
+      </div>
+      
+      <div className="grid grid-cols-2 gap-6">
+        <StatCard label="AVG. CASH / CALL" value={`$${kpis.avgCashPerCall.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+        <StatCard label="AVG. CASH / CLOSE" value={`$${kpis.avgCashPerClose.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+      </div>
 
       <div className="bg-neutral-900 rounded-lg shadow-sm p-6 flex flex-col">
         <p className="text-muted-foreground text-sm uppercase tracking-wider text-center mb-3">DEAL STATUS BREAKDOWN</p>

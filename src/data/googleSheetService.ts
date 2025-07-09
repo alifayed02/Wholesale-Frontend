@@ -32,8 +32,10 @@ export interface KpiData {
     showRate: number;
     trueShowRate: number;
     closeRate: number;
+    trueCloseRate: number;
     closerCommission: number;
     avgCashPerCall: number;
+    avgCashPerClose: number;
     callsCancelledNoConfirmation: number;
     callsTakenNotClosedNoConfirmation: number;
 }
@@ -351,8 +353,10 @@ export const calculateKpis = (
     showRate: 0,
     trueShowRate: 0,
     closeRate: 0,
+    trueCloseRate: 0,
     closerCommission: 0,
     avgCashPerCall: 0,
+    avgCashPerClose: 0,
     callsCancelledNoConfirmation: 0,
     callsTakenNotClosedNoConfirmation: 0,
   };
@@ -386,13 +390,26 @@ export const calculateKpis = (
   const showRate = callsDue > 0 ? (callsTaken / callsDue) * 100 : 0;
   const closeRate = callsTaken > 0 ? (callsClosed / callsTaken) * 100 : 0;
   const closerCommission = cashCollected * 0.1;
-  const avgCashPerCall = callsClosed > 0 ? cashCollected / callsTaken : 0;
+
+  const cashFromClosedCalls = filteredData.filter(r => r["Call Outcome"] === "Closed").reduce((sum, record) => {
+    const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g,"")) || 0;
+    return sum + cash;
+  }, 0);
+
+  const cashFromTakenCalls = filteredData.filter(r => r["Call Outcome"] !== "Cancelled" && r["Call Outcome"] !== "Rescheduled" && r["Call Outcome"] !== "No Show" && r["Call Outcome"] !== "MRR" && r["Call Outcome"] !== "Deposit Collected").reduce((sum, record) => {
+    const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g,"")) || 0;
+    return sum + cash;
+  }, 0);
+
+  const avgCashPerCall = callsTaken > 0 ? cashFromTakenCalls / callsTaken : 0;
+  const avgCashPerClose = callsClosed > 0 ? cashFromClosedCalls / callsClosed : 0;
 
   const trueCallsTaken = filteredData.filter(r => {
     const outcome = r["Call Outcome"];
     return outcome !== "Cancelled" && outcome !== "Rescheduled" && outcome !== "No Show" && outcome !== "MRR" && outcome !== "Deposit Collected" && outcome !== "Cancelled by sales team (no confirmation)";
   }).length;
   const trueShowRate = callsDue > 0 ? (trueCallsTaken / callsDue) * 100 : 0;
+  const trueCloseRate = callsDue > 0 ? (callsClosed / trueCallsTaken) * 100 : 0;
 
   return {
     cashCollected,
@@ -403,8 +420,10 @@ export const calculateKpis = (
     showRate,
     trueShowRate,
     closeRate,
+    trueCloseRate,
     closerCommission,
     avgCashPerCall,
+    avgCashPerClose,
     callsCancelledNoConfirmation: callsCancelledNoConf,
     callsTakenNotClosedNoConfirmation: callsTakenNotClosedNoConf,
   };
@@ -574,10 +593,16 @@ export const calculateCallsTable = (
 };
 
 export interface SetterKpiData {
+    cashCollected: number;
+    revenueGenerated: number;
     setterCommission: number;
     avgCashPerCall: number;
+    avgCashPerClose: number;
     showRate: number;
     closeRate: number;
+    callsTaken: number;
+    callsDue: number;
+    callsClosed: number;
 }
 
 export const calculateSetterKpis = (
@@ -617,16 +642,41 @@ export const calculateSetterKpis = (
         return sum + cash;
     }, 0);
 
-    const avgCashPerCall = closedCallsCount > 0 ? cashFromClosedCalls / closedCallsCount : 0;
-
     const showRate = callsDue > 0 ? (callsTaken / callsDue) * 100 : 0;
     const closeRate = callsTaken > 0 ? (closedCallsCount / callsTaken) * 100 : 0;
 
+    const cashCollected = filteredData.reduce((sum, record) => {
+      const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g,"")) || 0;
+      return sum + cash;
+    }, 0);
+  
+    const revenueGenerated = filteredData.reduce((sum, record) => {
+      const revenueStr = record[revenueKey as keyof CloserRecord] as string;
+      const revenue = parseFloat(String(revenueStr || "0").replace(/[^0-9.-]+/g,"")) || 0;
+      return sum + revenue;
+    }, 0);
+
+    const callsClosed = filteredData.filter(r => r["Call Outcome"] === "Closed").length;
+
+    const cashFromTakenCalls = filteredData.filter(r => r["Call Outcome"] !== "Cancelled" && r["Call Outcome"] !== "Rescheduled" && r["Call Outcome"] !== "No Show" && r["Call Outcome"] !== "MRR" && r["Call Outcome"] !== "Deposit Collected").reduce((sum, record) => {
+        const cash = parseFloat(String(record["Cash Collected"] || "0").replace(/[^0-9.-]+/g,"")) || 0;
+        return sum + cash;
+      }, 0);
+
+    const avgCashPerCall = callsTaken > 0 ? cashFromTakenCalls / callsTaken : 0;
+    const avgCashPerClose = callsClosed > 0 ? cashFromClosedCalls / callsClosed : 0;
+
     return {
+        cashCollected,
+        revenueGenerated,
         setterCommission,
         avgCashPerCall,
+        avgCashPerClose,
         showRate,
         closeRate,
+        callsTaken,
+        callsDue,
+        callsClosed,
     };
 };
 
@@ -634,6 +684,7 @@ export interface SetterCashData {
     setterName: string;
     totalCash: number;
     avgCashPerCall: number;
+    avgCashPerClose: number;
 }
 
 export const calculateSetterCashTable = (
@@ -649,14 +700,14 @@ export const calculateSetterCashTable = (
         return true;
     });
 
-    const setterStats = new Map<string, { totalCash: number, closedCallsCount: number, cashFromClosedCalls: number }>();
+    const setterStats = new Map<string, { totalCash: number, closedCallsCount: number, cashFromClosedCalls: number, callsTaken: number }>();
 
     filteredData.forEach(record => {
         const setterName = record["Setter Name"];
         if (!setterName) return;
 
         if (!setterStats.has(setterName)) {
-            setterStats.set(setterName, { totalCash: 0, closedCallsCount: 0, cashFromClosedCalls: 0 });
+            setterStats.set(setterName, { totalCash: 0, closedCallsCount: 0, cashFromClosedCalls: 0, callsTaken: 0 });
         }
         const stats = setterStats.get(setterName)!;
 
@@ -667,12 +718,18 @@ export const calculateSetterCashTable = (
             stats.closedCallsCount++;
             stats.cashFromClosedCalls += cash;
         }
+        if (record["Call Outcome"] !== "Cancelled" && record["Call Outcome"] !== "Rescheduled" && record["Call Outcome"] !== "No Show" && record["Call Outcome"] !== "MRR" && record["Call Outcome"] !== "Deposit Collected") {
+            stats.callsTaken++;
+        }
     });
+
+    // const avgCashPerCall = callsTaken > 0 ? cashCollected / callsTaken : 0;
 
     return Array.from(setterStats.entries()).map(([setterName, stats]) => ({
         setterName,
         totalCash: stats.totalCash,
-        avgCashPerCall: stats.closedCallsCount > 0 ? stats.cashFromClosedCalls / stats.closedCallsCount : 0,
+        avgCashPerCall: stats.callsTaken > 0 ? stats.totalCash / stats.callsTaken : 0,
+        avgCashPerClose: stats.closedCallsCount > 0 ? stats.cashFromClosedCalls / stats.closedCallsCount : 0,
     }));
 };
 
@@ -1005,4 +1062,91 @@ export const calculateDealStatusBreakdown = (
         count,
         value: total > 0 ? (count / total) * 100 : 0,
     })).sort((a, b) => b.count - a.count);
+};
+
+// Acquisition page simple prospect list
+export interface ProspectTableRow {
+    platform: string;
+    coach: string;
+    closer: string;
+    setter: string;
+    funnel: string;
+    date: string; // formatted MM/DD/YYYY
+    prospect: string;
+}
+
+export const calculateProspectTable = (
+    data: GoogleSheetData,
+    dateRange?: { from?: Date; to?: Date },
+    platform?: string,
+    coach?: string,
+    closer?: string,
+    situation?: string,
+    funnel?: string,
+): ProspectTableRow[] => {
+    if (!data || !data[0]) return [];
+
+    // reuse getFilteredData, passing funnel via additional manual filter later if needed
+    const filtered = getFilteredData(data, dateRange, platform, coach, closer, undefined, situation);
+
+    const final = (funnel && funnel !== 'Select Funnel') ? filtered.filter(r => (r["Funnel"] || '') === funnel) : filtered;
+
+    return final.map(rec => ({
+        platform: rec["Platform"] || 'N/A',
+        coach: rec["Coach Name"] || 'N/A',
+        closer: rec["Closer Name"] || 'N/A',
+        setter: rec["Setter Name"] || 'N/A',
+        funnel: rec["Funnel"] || 'N/A',
+        date: rec["Timestamp"] ? (rec["Timestamp"] as string).split(' ')[0] : 'N/A',
+        prospect: rec["Prospect Name"] || 'N/A',
+    }));
+};
+
+// ========== Leads Page Table ==========
+export interface LeadTableRow {
+    source: string;
+    funnel: string;
+    moneyOnHand: string;
+    date: string; // MM/DD/YYYY
+    name: string;
+    phone: string;
+    email: string;
+}
+
+export const calculateLeadsTable = (
+    data: LeadsData,
+    dateRange?: { from?: Date; to?: Date },
+    sourceFilter?: string,
+): LeadTableRow[] => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+
+    const adjustedDateRange = dateRange && dateRange.from && dateRange.to ? {
+        from: new Date(new Date(dateRange.from).setHours(0,0,0,0)),
+        to: new Date(new Date(dateRange.to).setHours(23,59,59,999)),
+    } : null;
+
+    return data.filter(rec => {
+        // Source filtering
+        if (sourceFilter && sourceFilter !== 'Select Source') {
+            if ((rec as any)["Source"] !== sourceFilter) return false;
+        }
+
+        // Date filtering
+        if (adjustedDateRange) {
+            const ts = rec.Timestamp;
+            if (!ts) return false;
+            const d = new Date(ts.split(' ')[0]);
+            if (isNaN(d.getTime())) return false;
+            if (d < adjustedDateRange.from || d > adjustedDateRange.to) return false;
+        }
+        return true;
+    }).map(rec => ({
+        source: (rec as any)["Source"] || 'N/A',
+        funnel: (rec as any)["Funnel"] || 'N/A',
+        moneyOnHand: (rec as any)["Willing to Invest"] || 'N/A',
+        date: rec.Timestamp ? rec.Timestamp.split(' ')[0] : 'N/A',
+        name: `${(rec as any)["First Name"] || ''} ${(rec as any)["Last Name"] || ''}`.trim() || 'N/A',
+        phone: (rec as any)["Phone"] || 'N/A',
+        email: (rec as any)["Email"] || 'N/A',
+    }));
 };

@@ -13,6 +13,8 @@ import {
   ApplicantSourceData,
   calculateInvestmentWillingnessBreakdown,
   InvestmentWillingData,
+  calculateLeadsTable,
+  LeadTableRow,
 } from '../data/googleSheetService';
 import DonutChart from '../components/charts/DonutChart';
 import { PlatformSelect } from '../components/filters/PlatformSelect';
@@ -25,6 +27,7 @@ const LeadsPage: React.FC = () => {
   const [incomeData, setIncomeData] = useState<IncomeReplaceData[]>([]);
   const [sourceData, setSourceData] = useState<ApplicantSourceData[]>([]);
   const [investData, setInvestData] = useState<InvestmentWillingData[]>([]);
+  const [leadsTable, setLeadsTable] = useState<LeadTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [platformOptions, setPlatformOptions] = useState<string[]>([]);
@@ -78,6 +81,9 @@ const LeadsPage: React.FC = () => {
 
       const investBreakdown = calculateInvestmentWillingnessBreakdown(platformFiltered, dateRange);
       setInvestData(investBreakdown);
+
+      const tbl = calculateLeadsTable(platformFiltered, dateRange, platform);
+      setLeadsTable(tbl);
     }
   }, [rawData, dateRange, platform]);
 
@@ -125,7 +131,7 @@ const LeadsPage: React.FC = () => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-1 gap-6">
         <div className="bg-neutral-900 rounded-2xl p-6">
-          <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">WILLING TO INVEST</p>
+          <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">CASH ON HAND</p>
           <ResponsiveContainer width="100%" height={350}>
               {investData.length === 0 ? (
                 <div className="text-white flex items-center justify-center h-full">No data</div>
@@ -156,10 +162,35 @@ const LeadsPage: React.FC = () => {
           <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">APPLICANT SOURCE</p>
           <DonutChart data={sourceData} colors={donutColors} />
         </div>
-        <div className="bg-neutral-900 rounded-2xl p-6">
-          <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">INCOME NEEDED TO REPLACE CURRENT INCOME</p>
-          <DonutChart data={incomeData} colors={donutColors} />
-        </div>
+      </div>
+
+      <div className="bg-neutral-900 rounded-2xl p-4">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="text-muted-foreground border-b border-neutral-800">
+              <th className="p-4 font-medium">SOURCE</th>
+              <th className="p-4 font-medium">FUNNEL</th>
+              <th className="p-4 font-medium">CASH ON HAND</th>
+              <th className="p-4 font-medium">DATE</th>
+              <th className="p-4 font-medium">NAME</th>
+              <th className="p-4 font-medium">PHONE</th>
+              <th className="p-4 font-medium">EMAIL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leadsTable.map((row, index) => (
+              <tr key={index} className="border-b border-neutral-800 last:border-b-0 hover:bg-neutral-800/50 transition-colors">
+                <td className="p-4">{row.source}</td>
+                <td className="p-4">{row.funnel}</td>
+                <td className="p-4">{row.moneyOnHand}</td>
+                <td className="p-4">{row.date}</td>
+                <td className="p-4">{row.name}</td>
+                <td className="p-4">{row.phone}</td>
+                <td className="p-4">{row.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

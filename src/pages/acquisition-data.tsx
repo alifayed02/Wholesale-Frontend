@@ -18,6 +18,8 @@ import {
   SituationBreakdownData,
   calculateDealStatusBreakdown,
   DealStatusDatum,
+  calculateProspectTable,
+  ProspectTableRow,
   SITUATION_DISPLAY_MAP
 } from '../data/googleSheetService';
 import { useAuth } from '../auth/useAuth';
@@ -30,6 +32,7 @@ const AcquisitionDataPage: React.FC = () => {
   const [funnelData, setFunnelData] = useState<FunnelBreakdownData[]>([]);
   const [situationData, setSituationData] = useState<SituationBreakdownData[]>([]);
   const [dealStatusData, setDealStatusData] = useState<DealStatusDatum[]>([]);
+  const [prospectTable, setProspectTable] = useState<ProspectTableRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
@@ -100,6 +103,9 @@ const AcquisitionDataPage: React.FC = () => {
 
       const dealStatusBreakdown = calculateDealStatusBreakdown(dataFiltered, dateRange, platform, coach, closer, situation);
       setDealStatusData(dealStatusBreakdown);
+
+      const prospectRows = calculateProspectTable(dataFiltered, dateRange, platform, coach, closer, situation, funnel);
+      setProspectTable(prospectRows);
     }
   }, [rawData, dateRange, platform, coach, closer, funnel, situation]);
 
@@ -114,7 +120,7 @@ const AcquisitionDataPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-center text-foreground mb-4">ACQUISITION DATA</h1>
-            <div className="flex justify-start flex-wrap gap-4 mb-4">
+        <div className="flex justify-start flex-wrap gap-4 mb-4">
         <div className="w-64"><DateRangePicker from={dateRange.from as Date} to={dateRange.to as Date} onChange={setDateRange} /></div>
       </div>
       <div className="flex justify-start flex-wrap gap-4 mb-4">
@@ -124,7 +130,35 @@ const AcquisitionDataPage: React.FC = () => {
         <div className="w-48"><FunnelSelect value={funnel} onChange={setFunnel} options={funnelOptions} /></div>
         <div className="w-48"><SituationSelect value={situation} onChange={setSituation} options={situationOptions} /></div>
       </div>
-      
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-blue-600 p-6 rounded-2xl text-center transition-all hover:bg-blue-700">
+              <p className="text-white/80 text-sm uppercase tracking-wider">SETTER COMMISSION</p>
+              <p className="text-white text-2xl font-bold mt-2">${kpis.cashCollected.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            </div>
+            {/* <StatCard label="Cash Collected" value={`$${kpis.cashCollected.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} /> */}
+            <StatCard label="Revenue Generated" value={`$${kpis.revenueGenerated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
+          </div>
+          <div className="grid grid-cols-2 xs:grid-cols-2 gap-6">
+            <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
+            {/* <StatCard label="True Show Rate" value={`${kpis.trueShowRate.toFixed(2)}%`} /> */}
+            <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
+            {/* <StatCard label="True Close Rate" value={`${kpis.trueCloseRate.toFixed(2)}%`} /> */}
+          </div>
+          <div className="grid grid-cols-5 xs:grid-cols-1 gap-6">
+            <StatCard label="Calls Due" value={kpis.callsDue.toString()} />
+            <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
+            <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
+            <StatCard label="Calls Cancelled (No Conf.)" value={kpis.callsCancelledNoConfirmation.toString()} />
+            <StatCard label="Calls Taken Not Closed (No Conf.)" value={kpis.callsTakenNotClosedNoConfirmation.toString()} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-6">
+          <StatCard label="AVG. CASH / CALL" value={`$${kpis.avgCashPerCall.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+          <StatCard label="AVG. CASH / CLOSE" value={`$${kpis.avgCashPerClose.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-6">
         <div className="bg-neutral-900 rounded-2xl p-6">
           <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">FUNNEL BREAKDOWN</p>
@@ -139,27 +173,35 @@ const AcquisitionDataPage: React.FC = () => {
           <DonutChart data={dealStatusData} colors={donutColors} />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-        <div className="space-y-6">
-          <div className="grid grid-cols-4 gap-6">
-            <StatCard label="Cash Collected" value={`$${kpis.cashCollected.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
-            <StatCard label="Revenue Generated" value={`$${kpis.revenueGenerated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
-            <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
-            <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
-          </div>
-          <div className="grid grid-cols-3 gap-6">
-              <StatCard label="Calls Due" value={kpis.callsDue.toString()} />
-              <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
-              <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
-          </div>
-          <div className="grid grid-cols-3 gap-6">
-            <StatCard label="Calls Cancelled (No Confirmation)" value={kpis.callsCancelledNoConfirmation.toString()} />
-            <StatCard label="Calls Taken Not Closed (No Confirmation)" value={kpis.callsTakenNotClosedNoConfirmation.toString()} />
-            <StatCard label="True Show Rate" value={`${kpis.trueShowRate.toFixed(2)}%`} />
-          </div>
-        </div>
+      <div className="bg-neutral-900 rounded-2xl p-4">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="text-muted-foreground border-b border-neutral-800">
+              <th className="p-4 font-medium">PLATFORM</th>
+              <th className="p-4 font-medium">COACH</th>
+              <th className="p-4 font-medium">CLOSER</th>
+              <th className="p-4 font-medium">SETTER</th>
+              <th className="p-4 font-medium">FUNNEL</th>
+              <th className="p-4 font-medium">DATE</th>
+              <th className="p-4 font-medium">PROSPECT</th>
+            </tr>
+          </thead>
+          <tbody>
+            {prospectTable.map((row, index) => (
+              <tr key={index} className="border-b border-neutral-800 last:border-b-0 hover:bg-neutral-800/50 transition-colors">
+                <td className="p-4">{row.platform}</td>
+                <td className="p-4">{row.coach}</td>
+                <td className="p-4">{row.closer}</td>
+                <td className="p-4">{row.setter}</td>
+                <td className="p-4">{row.funnel}</td>
+                <td className="p-4">{row.date}</td>
+                <td className="p-4">{row.prospect}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+      
     </div>
   );
 };

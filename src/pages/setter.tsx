@@ -87,18 +87,26 @@ const SetterPage: React.FC = () => {
         <div className="w-48"><PlatformSelect platform={platform} onChange={setPlatform} options={platformOptions} /></div>
         <div className="w-48"><SetterSelect value={setter} onChange={setSetter} options={setterOptions} /></div>
       </div>
-
       <div className="grid grid-cols-2 gap-6">
-      <StatCard label="Avg. Cash / Call" value={`$${kpis.avgCashPerCall.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+        <StatCard label="Cash Collected" value={`$${kpis.cashCollected.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
+        <StatCard label="Revenue Generated" value={`$${kpis.revenueGenerated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
+      </div>
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-blue-600 p-6 rounded-2xl text-center transition-all hover:bg-blue-700">
           <p className="text-white/80 text-sm uppercase tracking-wider">SETTER COMMISSION</p>
           <p className="text-white text-2xl font-bold mt-2">${kpis.setterCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
       </div>
-
+      <div className="grid grid-cols-5 xs:grid-cols-1 gap-6">
+        <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
+        <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
+        <StatCard label="Calls Due" value={kpis.callsDue.toString()} />
+        <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
+        <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
+      </div>
       <div className="grid grid-cols-2 gap-6">
-            <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
-            <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
+        <StatCard label="Avg. Cash / Call" value={`$${kpis.avgCashPerCall.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+        <StatCard label="Avg. Cash / Close" value={`$${kpis.avgCashPerClose.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
       </div>
 
       <div className="bg-neutral-900 rounded-lg shadow-sm p-6 flex flex-col">
