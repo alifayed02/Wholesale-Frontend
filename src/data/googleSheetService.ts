@@ -127,7 +127,7 @@ export interface CoachKpiData {
 const API_BASE =
   import.meta.env.VITE_ENVIRONMENT === 'production'
     ? import.meta.env.VITE_BACKEND_URL
-    : 'http://localhost:5005';
+    : 'http://localhost:5000';
 
 export const fetchData = async (token: string): Promise<GoogleSheetData> => {
   const response = await fetch(`${API_BASE}/data/eoc`, {
@@ -599,7 +599,9 @@ export interface SetterKpiData {
     avgCashPerCall: number;
     avgCashPerClose: number;
     showRate: number;
+    trueShowRate: number;
     closeRate: number;
+    trueCloseRate: number;
     callsTaken: number;
     callsDue: number;
     callsClosed: number;
@@ -666,6 +668,13 @@ export const calculateSetterKpis = (
     const avgCashPerCall = callsTaken > 0 ? cashFromTakenCalls / callsTaken : 0;
     const avgCashPerClose = callsClosed > 0 ? cashFromClosedCalls / callsClosed : 0;
 
+    const trueCallsTaken = filteredData.filter(r => {
+        const outcome = r["Call Outcome"];
+        return outcome !== "Cancelled" && outcome !== "Rescheduled" && outcome !== "No Show" && outcome !== "MRR" && outcome !== "Deposit Collected" && outcome !== "Cancelled by sales team (no confirmation)";
+      }).length;
+      const trueShowRate = callsDue > 0 ? (trueCallsTaken / callsDue) * 100 : 0;
+      const trueCloseRate = callsDue > 0 ? (callsClosed / trueCallsTaken) * 100 : 0;
+
     return {
         cashCollected,
         revenueGenerated,
@@ -673,7 +682,9 @@ export const calculateSetterKpis = (
         avgCashPerCall,
         avgCashPerClose,
         showRate,
+        trueShowRate,
         closeRate,
+        trueCloseRate,
         callsTaken,
         callsDue,
         callsClosed,

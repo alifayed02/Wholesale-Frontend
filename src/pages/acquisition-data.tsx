@@ -141,10 +141,14 @@ const AcquisitionDataPage: React.FC = () => {
             <StatCard label="Revenue Generated" value={`$${kpis.revenueGenerated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} />
           </div>
           <div className="grid grid-cols-2 xs:grid-cols-2 gap-6">
-            <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
-            {/* <StatCard label="True Show Rate" value={`${kpis.trueShowRate.toFixed(2)}%`} /> */}
-            <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
-            {/* <StatCard label="True Close Rate" value={`${kpis.trueCloseRate.toFixed(2)}%`} /> */}
+            <div className="bg-neutral-900 p-6 rounded-2xl text-center transition-all hover:bg-neutral-800/50">
+              <p className="text-muted-foreground text-sm uppercase tracking-wider">Show Rate</p>
+              <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.showRate.toFixed(2)}% <span className="text-muted-foreground text-sm tracking-wider">(true: {kpis.trueShowRate.toFixed(2)}%)</span></p>
+            </div>
+            <div className="bg-neutral-900 p-6 rounded-2xl text-center transition-all hover:bg-neutral-800/50">
+              <p className="text-muted-foreground text-sm uppercase tracking-wider">Close Rate</p>
+              <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.closeRate.toFixed(2)}% <span className="text-muted-foreground text-sm tracking-wider">(true: {kpis.trueCloseRate.toFixed(2)}%)</span></p>
+            </div>
           </div>
           <div className="grid grid-cols-5 xs:grid-cols-1 gap-6">
             <StatCard label="Calls Due" value={kpis.callsDue.toString()} />

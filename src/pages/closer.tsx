@@ -112,8 +112,14 @@ const CloserPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-5 xs:grid-cols-1 gap-6">
-        <StatCard label="Show Rate" value={`${kpis.showRate.toFixed(2)}%`} />
-        <StatCard label="Close Rate" value={`${kpis.closeRate.toFixed(2)}%`} />
+        <div className="bg-neutral-900 p-6 rounded-2xl text-center transition-all hover:bg-neutral-800/50">
+          <p className="text-muted-foreground text-sm uppercase tracking-wider">Show Rate</p>
+          <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.showRate.toFixed(2)}% <span className="text-muted-foreground text-sm tracking-wider">(true: {kpis.trueShowRate.toFixed(2)}%)</span></p>
+        </div>
+        <div className="bg-neutral-900 p-6 rounded-2xl text-center transition-all hover:bg-neutral-800/50">
+          <p className="text-muted-foreground text-sm uppercase tracking-wider">Close Rate</p>
+          <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.closeRate.toFixed(2)}% <span className="text-muted-foreground text-sm tracking-wider">(true: {kpis.trueCloseRate.toFixed(2)}%)</span></p>
+        </div>
         <StatCard label="Calls Due" value={kpis.callsDue.toString()} />
         <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
         <StatCard label="Calls Closed" value={kpis.callsClosed.toString()} />
