@@ -147,7 +147,7 @@ const AcquisitionDataPage: React.FC = () => {
             </div>
             <div className="bg-neutral-900 p-6 rounded-2xl text-center transition-all hover:bg-neutral-800/50">
               <p className="text-muted-foreground text-sm uppercase tracking-wider">Close Rate</p>
-              <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.closeRate.toFixed(2)}% <span className="text-muted-foreground text-sm tracking-wider">(true: {kpis.trueCloseRate.toFixed(2)}%)</span></p>
+              <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.closeRate.toFixed(2)}%</p>
             </div>
           </div>
           <div className="grid grid-cols-5 xs:grid-cols-1 gap-6">

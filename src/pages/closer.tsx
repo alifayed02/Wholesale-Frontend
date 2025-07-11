@@ -118,7 +118,7 @@ const CloserPage: React.FC = () => {
         </div>
         <div className="bg-neutral-900 p-6 rounded-2xl text-center transition-all hover:bg-neutral-800/50">
           <p className="text-muted-foreground text-sm uppercase tracking-wider">Close Rate</p>
-          <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.closeRate.toFixed(2)}% <span className="text-muted-foreground text-sm tracking-wider">(true: {kpis.trueCloseRate.toFixed(2)}%)</span></p>
+          <p className="text-foreground text-2xl font-bold mt-2 break-words">{kpis.closeRate.toFixed(2)}%</p>
         </div>
         <StatCard label="Calls Due" value={kpis.callsDue.toString()} />
         <StatCard label="Calls Taken" value={kpis.callsTaken.toString()} />
