@@ -73,7 +73,7 @@ const AcquisitionDataPage: React.FC = () => {
 
             const situationsRaw = [...new Set(data[0].map(item => (item as any)["Situation"]).filter(Boolean))] as string[];
             const situationsFormatted = [...new Set(situationsRaw.map(s => SITUATION_DISPLAY_MAP[s] ?? s))];
-            setSituationOptions(["Select Situation", ...situationsFormatted]);
+            setSituationOptions(["Select Situation", ...situationsFormatted.sort()]);
         }
       } catch (error) {
         console.error("Failed to fetch data", error);
