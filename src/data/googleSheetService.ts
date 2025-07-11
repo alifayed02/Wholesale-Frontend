@@ -1033,6 +1033,7 @@ export const calculateInvestmentWillingnessBreakdown = (
     }
 
     const val = rec["Willing to Invest"] || 'Unknown';
+    if (val === 'Unknown') return;
     map.set(val, (map.get(val) || 0) + 1);
   });
 

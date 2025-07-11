@@ -18,6 +18,8 @@ import {
 } from '../data/googleSheetService';
 import DonutChart from '../components/charts/DonutChart';
 import { PlatformSelect } from '../components/filters/PlatformSelect';
+import { FunnelSelect } from '../components/filters/FunnelSelect';
+import { CoachSelect } from '../components/filters/CoachSelect';
 
 const donutColors = ["#1E3FAE", "#AE1D1D", "#AE8D1D", "#66AE1D", "#AE1D66", "#651DAE"];
 
@@ -32,6 +34,12 @@ const LeadsPage: React.FC = () => {
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [platformOptions, setPlatformOptions] = useState<string[]>([]);
   const [platform, setPlatform] = useState('Select Source');
+
+  // Funnel & Coach filter state
+  const [funnelOptions, setFunnelOptions] = useState<string[]>([]);
+  const [funnel, setFunnel] = useState('Select Funnel');
+  const [coachOptions, setCoachOptions] = useState<string[]>([]);
+  const [coach, setCoach] = useState('Select Coach');
 
   const { getAuthToken } = useAuth();
 
@@ -53,39 +61,59 @@ const LeadsPage: React.FC = () => {
     load();
   }, [getAuthToken]);
 
-  // Derive platform options whenever raw data changes
+  // Derive options for all select filters whenever raw data changes
   useEffect(() => {
     if (rawData) {
+      // Source / Platform options
       const platforms = [...new Set(rawData.map(rec => (rec as any)["Source"] || 'Unknown').filter(p => p !== 'Unknown' && String(p).trim() !== ''))];
       setPlatformOptions(["Select Source", ...platforms]);
+
+      // Funnel options
+      const funnels = [...new Set(rawData.map(rec => (rec as any)["Funnel"] || 'Unknown').filter(f => f !== 'Unknown' && String(f).trim() !== ''))];
+      setFunnelOptions(["Select Funnel", ...funnels]);
+
+      // Coach options
+      const coaches = [...new Set(rawData.map(rec => (rec as any)["Coach"] || 'Unknown').filter(c => c !== 'Unknown' && String(c).trim() !== ''))];
+      setCoachOptions(["Select Coach", ...coaches]);
     }
   }, [rawData]);
 
   // Calculate applicants over time & income breakdown whenever data or filter changes
   useEffect(() => {
     if (rawData) {
-      // Apply platform filter first
-      let platformFiltered = rawData;
+      let filtered = rawData;
+
+      // Source filter
       if (platform && platform !== 'Select Source') {
-        platformFiltered = rawData.filter(rec => (rec as any)["Source"] === platform);
+        filtered = filtered.filter(rec => (rec as any)["Source"] === platform);
       }
 
-      const trend = calculateApplicantsOverTime(platformFiltered, dateRange);
+      // Funnel filter
+      if (funnel && funnel !== 'Select Funnel') {
+        filtered = filtered.filter(rec => (rec as any)["Funnel"] === funnel);
+      }
+
+      // Coach filter
+      if (coach && coach !== 'Select Coach') {
+        filtered = filtered.filter(rec => (rec as any)["Coach"] === coach);
+      }
+
+      const trend = calculateApplicantsOverTime(filtered, dateRange);
       setTrendData(trend);
 
-      const incomeBreakdown = calculateIncomeReplaceBreakdown(platformFiltered, dateRange);
+      const incomeBreakdown = calculateIncomeReplaceBreakdown(filtered, dateRange);
       setIncomeData(incomeBreakdown);
 
-      const srcBreakdown = calculateApplicantSourceBreakdown(platformFiltered, dateRange);
+      const srcBreakdown = calculateApplicantSourceBreakdown(filtered, dateRange);
       setSourceData(srcBreakdown);
 
-      const investBreakdown = calculateInvestmentWillingnessBreakdown(platformFiltered, dateRange);
+      const investBreakdown = calculateInvestmentWillingnessBreakdown(filtered, dateRange);
       setInvestData(investBreakdown);
 
-      const tbl = calculateLeadsTable(platformFiltered, dateRange, platform);
+      const tbl = calculateLeadsTable(filtered, dateRange);
       setLeadsTable(tbl);
     }
-  }, [rawData, dateRange, platform]);
+  }, [rawData, dateRange, platform, funnel, coach]);
 
   if (isLoading) {
     return <div className="text-white text-center p-8">Loading...</div>;
@@ -105,6 +133,12 @@ const LeadsPage: React.FC = () => {
         </div>
         <div className="w-48">
           <PlatformSelect platform={platform} onChange={setPlatform} options={platformOptions} />
+        </div>
+        <div className="w-48">
+          <FunnelSelect value={funnel} onChange={setFunnel} options={funnelOptions} />
+        </div>
+        <div className="w-48">
+          <CoachSelect value={coach} onChange={setCoach} options={coachOptions} />
         </div>
       </div>
 
