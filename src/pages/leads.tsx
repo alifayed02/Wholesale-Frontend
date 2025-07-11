@@ -163,6 +163,12 @@ const LeadsPage: React.FC = () => {
           )}
         </ResponsiveContainer>
       </div>
+      <div className="grid grid-cols-1 gap-6">
+        <div className="bg-blue-600 p-6 rounded-2xl text-center transition-all hover:bg-blue-700">
+          <p className="text-white/80 text-sm uppercase tracking-wider">Total Applicants</p>
+          <p className="text-white text-2xl font-bold mt-2">{leadsTable.length}</p>
+        </div>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-1 gap-6">
         <div className="bg-neutral-900 rounded-2xl p-6">
           <p className="text-muted-foreground text-center text-sm uppercase tracking-wider">CASH ON HAND</p>
