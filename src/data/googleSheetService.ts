@@ -374,7 +374,7 @@ export const calculateKpis = (
     return sum + revenue;
   }, 0);
 
-  const callsDue = filteredData.filter(r => r["Call Outcome"] !== "Cancelled" && r["Call Outcome"] !== "Rescheduled").length;
+  const callsDue = filteredData.filter(r => r["Call Outcome"] !== "Cancelled" && r["Call Outcome"] !== "Rescheduled" && r["Call Outcome"] !== "MRR").length;
 
   const callsTaken = filteredData.filter(r => {
     const outcome = r["Call Outcome"];
@@ -628,7 +628,7 @@ export const calculateSetterKpis = (
 
     const callsDue = filteredData.filter(r => {
         const out = r["Call Outcome"];
-        return out !== "Cancelled" && out !== "Rescheduled";
+        return out !== "Cancelled" && out !== "Rescheduled" && out !== "MRR";
     }).length;
 
     const callsTaken = filteredData.filter(r => {
